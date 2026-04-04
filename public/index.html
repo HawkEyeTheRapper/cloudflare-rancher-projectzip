@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Cloudflare Rancher</title>
+  <title>Cloudflare Rancher — Omniversal Federation</title>
   <style>
     * { box-sizing: border-box; }
     body {
@@ -31,6 +31,9 @@
       --success-bg: rgba(16,185,129,0.14);
       --success-border: rgba(16,185,129,0.34);
       --success-text: #a7f3d0;
+      --violet-bg: rgba(139,92,246,0.12);
+      --violet-border: rgba(167,139,250,0.32);
+      --violet-text: #ddd6fe;
       --radius: 14px;
       --shadow: 0 16px 50px rgba(0,0,0,0.35);
     }
@@ -70,6 +73,7 @@
       display: grid;
       place-items: center;
       font-size: 24px;
+      flex-shrink: 0;
       box-shadow: 0 8px 24px rgba(234, 88, 12, 0.3);
     }
     .header h1 {
@@ -82,6 +86,20 @@
       margin: 4px 0 0;
       color: var(--muted);
       font-size: 13px;
+    }
+    .header-subtitle {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 4px;
+    }
+    .header-subtitle .dot-sep {
+      color: rgba(255,255,255,0.2);
+    }
+    .header-subtitle span {
+      font-size: 11px;
+      color: var(--violet-text);
+      letter-spacing: 0.04em;
     }
     .pillbar {
       margin-left: auto;
@@ -105,6 +123,11 @@
       border-color: rgba(234, 88, 12, 0.35);
       background: rgba(234, 88, 12, 0.12);
       color: #fed7aa;
+    }
+    .pill.violet {
+      border-color: rgba(139,92,246,0.35);
+      background: rgba(139,92,246,0.12);
+      color: #ddd6fe;
     }
     .grid {
       display: grid;
@@ -159,7 +182,7 @@
       border-color: rgba(251,146,60,0.55);
       box-shadow: 0 0 0 3px rgba(234,88,12,0.12);
     }
-    .info, .warning, .success {
+    .info, .warning, .success, .aether {
       padding: 12px 13px;
       border-radius: 12px;
       font-size: 12px;
@@ -180,6 +203,11 @@
       background: var(--success-bg);
       border: 1px solid var(--success-border);
       color: var(--success-text);
+    }
+    .aether {
+      background: var(--violet-bg);
+      border: 1px solid var(--violet-border);
+      color: var(--violet-text);
     }
     .btnrow {
       display: flex;
@@ -403,11 +431,177 @@
       0%,80%,100% { transform: translateY(0); opacity: .5; }
       40% { transform: translateY(-4px); opacity: 1; }
     }
+
+    /* Federation tab styles */
+    .federation-panel {
+      overflow-y: auto;
+    }
+    .fed-header {
+      margin-bottom: 20px;
+    }
+    .fed-header h2 {
+      margin: 0 0 6px;
+      font-size: 20px;
+      font-weight: 700;
+      background: linear-gradient(135deg, #c4b5fd, #818cf8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .fed-header p {
+      margin: 0;
+      font-size: 13px;
+      color: var(--muted);
+    }
+    .realm-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 14px;
+    }
+    .realm-card {
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px;
+      background: rgba(255,255,255,0.03);
+      transition: 180ms ease;
+      cursor: pointer;
+    }
+    .realm-card:hover {
+      background: rgba(255,255,255,0.055);
+      transform: translateY(-2px);
+      border-color: rgba(255,255,255,0.16);
+    }
+    .realm-card.core {
+      border-color: rgba(234,88,12,0.3);
+      background: rgba(234,88,12,0.06);
+    }
+    .realm-card.core:hover {
+      background: rgba(234,88,12,0.1);
+      border-color: rgba(234,88,12,0.5);
+    }
+    .realm-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 3px 9px;
+      border-radius: 999px;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+    .realm-badge.core {
+      background: rgba(234,88,12,0.18);
+      border: 1px solid rgba(234,88,12,0.35);
+      color: #fed7aa;
+    }
+    .realm-badge.sovereign {
+      background: rgba(139,92,246,0.18);
+      border: 1px solid rgba(139,92,246,0.35);
+      color: #ddd6fe;
+    }
+    .realm-name {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text);
+      margin: 0 0 6px;
+    }
+    .realm-desc {
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.55;
+      margin: 0 0 10px;
+    }
+    .realm-domains {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+    }
+    .realm-domain-chip {
+      font-size: 10px;
+      font-family: ui-monospace, monospace;
+      padding: 3px 7px;
+      border-radius: 6px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      cursor: pointer;
+      transition: 120ms ease;
+    }
+    .realm-domain-chip:hover {
+      background: rgba(251,146,60,0.12);
+      border-color: rgba(251,146,60,0.3);
+      color: #fed7aa;
+    }
+    .fed-divider {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 20px 0 16px;
+    }
+    .fed-divider span {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+    .fed-divider hr {
+      flex: 1;
+      border: none;
+      border-top: 1px solid var(--border);
+    }
+
+    /* About tab styles */
+    .about-section {
+      margin-bottom: 18px;
+    }
+    .about-section h3 {
+      margin: 0 0 8px;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+    }
+    .about-section p {
+      margin: 0 0 6px;
+      font-size: 13px;
+      line-height: 1.6;
+      color: var(--text);
+    }
+    .realm-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+      margin-top: 8px;
+    }
+    .realm-table th {
+      text-align: left;
+      color: var(--muted);
+      font-weight: 600;
+      padding: 6px 8px;
+      border-bottom: 1px solid var(--border);
+    }
+    .realm-table td {
+      padding: 7px 8px;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      font-family: ui-monospace, monospace;
+      color: var(--muted);
+    }
+    .realm-table td:first-child {
+      font-family: inherit;
+      color: var(--text);
+      font-weight: 500;
+    }
+
     @media (max-width: 980px) {
       .grid { grid-template-columns: 1fr; }
       .workspace { min-height: auto; }
       .scope-grid { grid-template-columns: 1fr; }
       .pillbar { margin-left: 0; justify-content: flex-start; }
+      .realm-grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -417,12 +611,17 @@
       <div class="brand-icon">🤠</div>
       <div>
         <h1>Cloudflare Rancher</h1>
-        <p>Omniversal infrastructure console for plan-mode orchestration and execution-ready handoff.</p>
+        <div class="header-subtitle">
+          <span>Omniversal Federated Network</span>
+          <span class="dot-sep">·</span>
+          <span>A Sovereign Alliance of Realms</span>
+        </div>
+        <p>Infrastructure console for plan-mode orchestration and execution-ready handoff.</p>
       </div>
       <div class="pillbar">
         <div class="pill orange" id="modeBadge">Plan mode</div>
-        <div class="pill">Worker + static assets</div>
-        <div class="pill">Secrets stay server-side</div>
+        <div class="pill violet">8 Realms</div>
+        <div class="pill">Secrets server-side</div>
       </div>
     </div>
 
@@ -437,14 +636,14 @@
             </div>
             <div class="radio-opt" data-mode="execute">
               <div class="radio-title">Execute handoff</div>
-              <div class="radio-desc">Prepare execution context for Codex CLI, while still requiring explicit confirmation before destructive actions.</div>
+              <div class="radio-desc">Prepare execution context for Codex CLI, still requiring explicit confirmation before destructive actions.</div>
             </div>
           </div>
         </div>
 
         <div class="section">
           <h2>Credentials</h2>
-          <div class="info">The browser no longer talks directly to Anthropic. Model calls go through this Worker so your API key can live in a Cloudflare secret instead of the client.</div>
+          <div class="info">Model calls go through this Worker so your Anthropic key lives in a Cloudflare secret, never in the browser.</div>
           <div class="field">
             <label class="label" for="cfToken">Cloudflare API token or Global API key</label>
             <input id="cfToken" type="password" placeholder="cf_token_..." />
@@ -462,7 +661,7 @@
           <h2>Domain</h2>
           <div class="field">
             <label class="label" for="domainInput">Target domain or zone</label>
-            <input id="domainInput" type="text" placeholder="rancher.everlightos.com or thesentinelframework.com" />
+            <input id="domainInput" type="text" placeholder="thesentinelframework.com or everlightos.com" />
           </div>
           <div class="domains" id="domainList"></div>
         </div>
@@ -478,7 +677,7 @@
             <div class="check"><span class="dot" id="statusMode"></span><span>Mode selected</span></div>
             <div class="check"><span class="dot" id="statusDomain"></span><span>Domain or account scope set</span></div>
             <div class="check"><span class="dot" id="statusScopes"></span><span>Permissions selected</span></div>
-            <div class="check"><span class="dot" id="statusCreds"></span><span>Cloudflare credentials optional for planning, useful for execution</span></div>
+            <div class="check"><span class="dot" id="statusCreds"></span><span>Cloudflare credentials (optional for planning)</span></div>
           </div>
         </div>
       </aside>
@@ -487,15 +686,16 @@
         <div class="tabs">
           <button class="tab active" data-tab="ai">Rancher AI</button>
           <button class="tab" data-tab="plan">Operation Plan</button>
+          <button class="tab" data-tab="federation">Federation</button>
           <button class="tab" data-tab="about">Deploy Notes</button>
         </div>
 
         <div class="panel active" id="panel-ai">
-          <div class="info">Describe the task in plain language. The Worker injects session context, scope mapping, and Omniversal domain hints before calling the model.</div>
+          <div class="info">Describe the task in plain language. Rancher injects session context, scope mapping, and the full Omniversal constellation before calling the model.</div>
           <div class="chat-shell">
             <div class="chat-messages" id="chatMessages"></div>
             <div class="composer">
-              <textarea id="chatInput" placeholder="Example: Audit SSL/TLS, cache, and DNS setup for rancher.everlightos.com and tell me the minimum scopes required."></textarea>
+              <textarea id="chatInput" placeholder="Example: Audit SSL/TLS, cache, and DNS setup for thesentinelframework.com and tell me the minimum scopes required."></textarea>
               <div class="btnrow" style="margin:0; align-self:end; justify-content:flex-end;">
                 <button class="btn secondary" id="seedPromptBtn">Seed intro</button>
                 <button class="btn primary" id="sendBtn">Send</button>
@@ -514,18 +714,74 @@
           <div class="plan-box" id="planOutput">No plan generated yet.</div>
         </div>
 
+        <div class="panel federation-panel" id="panel-federation">
+          <div class="fed-header">
+            <h2>Omniversal Federated Network</h2>
+            <p>A constellation of sovereign LLCs united by purpose, bound by Aether. Click any domain chip to target it in the console.</p>
+          </div>
+
+          <div class="aether" style="margin-bottom:18px;">
+            <strong>Aether Core principle:</strong> Omniversal Media LLC provides enterprise-class infrastructure, AI systems, compliance scaffolding, and federated intelligence protocols to each sovereign realm — while every realm maintains full legal and operational autonomy.
+          </div>
+
+          <div class="fed-divider">
+            <span>Aether Core</span>
+            <hr />
+          </div>
+          <div class="realm-grid" id="coreGrid"></div>
+
+          <div class="fed-divider" style="margin-top:24px;">
+            <span>Sovereign Realms</span>
+            <hr />
+          </div>
+          <div class="realm-grid" id="sovereignGrid"></div>
+        </div>
+
         <div class="panel" id="panel-about">
-          <div class="success">This version is structured for a Cloudflare Worker with static assets, not a browser-only HTML file. That means your AI provider key can be stored as a Worker secret and never exposed client-side.</div>
-          <div class="plan-box" style="font-family:inherit; font-size:13px; white-space:normal;">
-            <strong>Included runtime endpoints</strong><br><br>
-            <span class="kbd">POST /api/chat</span> Proxy to Anthropic with session context, scope mapping, Omniversal hints, and conservative system prompts.<br><br>
-            <span class="kbd">POST /api/plan</span> Builds an execution-ready plan from the session transcript.<br><br>
-            <strong>Recommended first host</strong><br><br>
-            Deploy as a Worker with static assets and attach either a workers.dev subdomain first or a custom domain once verified, such as <span class="kbd">rancher.everlightos.com</span>.<br><br>
-            <strong>Secrets expected</strong><br><br>
-            <span class="kbd">ANTHROPIC_API_KEY</span>, optional <span class="kbd">ANTHROPIC_MODEL</span>, optional <span class="kbd">ALLOWED_ORIGIN</span>.<br><br>
-            <strong>Cloudflare note</strong><br><br>
-            The user-entered Cloudflare token and account ID stay in browser memory for the current session unless you later decide to wire in secure persistence or a server-side vault.
+          <div class="success">Structured as a Cloudflare Worker with static assets — your Anthropic key lives in a Worker secret, never in the browser client.</div>
+
+          <div class="about-section">
+            <h3>Runtime endpoints</h3>
+            <p><span class="kbd">POST /api/chat</span> &nbsp;AI chat proxy — injects session context, scope map, and full Omniversal constellation.</p>
+            <p><span class="kbd">POST /api/plan</span> &nbsp;Execution-ready plan generator from the conversation transcript.</p>
+            <p><span class="kbd">GET /api/federation</span> &nbsp;Returns the Omniversal realm manifest as JSON.</p>
+            <p><span class="kbd">GET /api/health</span> &nbsp;Health check.</p>
+          </div>
+
+          <div class="about-section">
+            <h3>Recommended deployment targets</h3>
+            <table class="realm-table">
+              <thead>
+                <tr><th>Realm</th><th>Domain</th><th>Priority</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>Rancher console</td><td>rancher.everlightos.com</td><td>Primary</td></tr>
+                <tr><td>Aether Core</td><td>omniversalmedia.net</td><td>Flagship</td></tr>
+                <tr><td>Sentinel</td><td>thesentinelframework.com</td><td>Security layer</td></tr>
+                <tr><td>Aether Intelligence</td><td>aetherintelligence.net</td><td>Research hub</td></tr>
+                <tr><td>EverLightOS</td><td>everlightos.com</td><td>Terminal / OS layer</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="about-section">
+            <h3>Required Worker secrets</h3>
+            <p><span class="kbd">ANTHROPIC_API_KEY</span> — required</p>
+            <p><span class="kbd">ANTHROPIC_MODEL</span> — optional (defaults to claude-sonnet-4-20250514)</p>
+            <p><span class="kbd">ALLOWED_ORIGIN</span> — optional (useful for split front-end / API origins)</p>
+          </div>
+
+          <div class="about-section">
+            <h3>Deploy steps</h3>
+            <p>1. <span class="kbd">npm install</span></p>
+            <p>2. <span class="kbd">npx wrangler secret put ANTHROPIC_API_KEY</span></p>
+            <p>3. <span class="kbd">npx wrangler deploy</span></p>
+            <p>4. Attach <span class="kbd">rancher.everlightos.com</span> as a custom domain in the Cloudflare dashboard.</p>
+          </div>
+
+          <div class="about-section">
+            <h3>Local development</h3>
+            <p>Create a <span class="kbd">.dev.vars</span> file with <span class="kbd">ANTHROPIC_API_KEY=sk-ant-...</span> then run <span class="kbd">npm run dev</span> (port 5000).</p>
           </div>
         </div>
       </main>
@@ -533,16 +789,83 @@
   </div>
 
   <script>
+    const REALMS = [
+      {
+        name: "Omniversal Media LLC",
+        role: "Aether Core",
+        tier: "core",
+        domains: ["omniversalmedia.llc", "omniversalmedia.cc", "omniversalmedia.info", "omniversalmedia.org", "omniversalmedia.net", "omniversalmediasolutions.com"],
+        desc: "Central intelligence layer. Provides infrastructure, AI systems, compliance scaffolding, merchandising pipelines, and federated intelligence protocols to all sovereign realms.",
+      },
+      {
+        name: "Omniversal Media Productions LLC",
+        role: "Sovereign Realm",
+        tier: "sovereign",
+        domains: ["omniversalmedia.art"],
+        desc: "Music, label operations, merch, distribution, and artistic output.",
+      },
+      {
+        name: "Rebuilding Roots LLC",
+        role: "Sovereign Realm",
+        tier: "sovereign",
+        domains: ["rebuilding-roots.com"],
+        desc: "Creative operations, community initiatives, and narrative development.",
+      },
+      {
+        name: "Aether Intelligence LLC",
+        role: "Sovereign Realm",
+        tier: "sovereign",
+        domains: ["aetherintelligence.net", "aetheranalysis.com"],
+        desc: "Advanced research, AI-aligned systems, and mythic computation.",
+      },
+      {
+        name: "EverLightOS LLC",
+        role: "Sovereign Realm",
+        tier: "sovereign",
+        domains: ["everlightos.com", "everlightos.net"],
+        desc: "Terminal interfaces, federated storytelling, and Aether protocols.",
+      },
+      {
+        name: "The Sentinel Framework LLC",
+        role: "Sovereign Realm",
+        tier: "sovereign",
+        domains: ["thesentinelframework.com"],
+        desc: "Security, guardianship, structural integrity, and oversight across the federation.",
+      },
+      {
+        name: "The Celtic Key LLC",
+        role: "Sovereign Realm",
+        tier: "sovereign",
+        domains: ["theceltickey.com"],
+        desc: "Symbolic systems, mythic encryption, and cultural resonance.",
+      },
+      {
+        name: "Aether Agency",
+        role: "Sovereign Realm",
+        tier: "sovereign",
+        domains: ["aetheragency.online"],
+        desc: "Operational outreach and external-facing services for the federation.",
+      },
+    ];
+
     const domains = [
-      ["rancher.everlightos.com", "proposed console host"],
-      ["everlightos.com", "EverLight OS"],
-      ["everlightos.net", "legacy / alternate"],
-      ["thesentinelframework.com", "Sentinel Framework"],
-      ["omniversalmediasolutions.com", "Omniversal Media Solutions"],
-      ["omniversalmedia.net", "Omniversal media flagship"],
-      ["aetheranalysis.com", "Aether Analysis"],
-      ["aetherintelligence.net", "Aether Intelligence"],
-      ["account-level (all zones)", "Workers, R2, account-wide tasks"]
+      ["rancher.everlightos.com", "Rancher console host"],
+      ["omniversalmedia.llc", "Aether Core · Omniversal Media LLC"],
+      ["omniversalmedia.cc", "Aether Core · Mythic Intelligence"],
+      ["omniversalmedia.info", "Aether Core · Knowledge Base"],
+      ["omniversalmedia.org", "Aether Core · Institutional Layer"],
+      ["omniversalmedia.net", "Aether Core · Flagship"],
+      ["omniversalmedia.art", "Productions LLC · Music & Media"],
+      ["omniversalmediasolutions.com", "Aether Core · Solutions"],
+      ["theceltickey.com", "The Celtic Key LLC · Symbolic Systems"],
+      ["thesentinelframework.com", "The Sentinel Framework LLC · Security"],
+      ["aetherintelligence.net", "Aether Intelligence LLC · Research & AI"],
+      ["aetheranalysis.com", "Aether Intelligence · Analysis"],
+      ["aetheragency.online", "Aether Agency · Outreach"],
+      ["everlightos.com", "EverLightOS LLC · Terminal / Aether"],
+      ["everlightos.net", "EverLightOS LLC · Alternate domain"],
+      ["rebuilding-roots.com", "Rebuilding Roots LLC · Creative Ops"],
+      ["account-level (all zones)", "Workers, R2, Pages, account-wide"],
     ];
 
     const scopes = [
@@ -609,6 +932,47 @@
       });
     }
 
+    function renderFederation() {
+      const coreGrid = document.getElementById("coreGrid");
+      const sovereignGrid = document.getElementById("sovereignGrid");
+      coreGrid.innerHTML = "";
+      sovereignGrid.innerHTML = "";
+
+      REALMS.forEach(realm => {
+        const card = document.createElement("div");
+        card.className = `realm-card ${realm.tier}`;
+
+        const badge = `<span class="realm-badge ${realm.tier}">${realm.tier === "core" ? "⚡ Aether Core" : "◆ Sovereign"}</span>`;
+        const domainChips = realm.domains.map(d =>
+          `<span class="realm-domain-chip" onclick="setDomainFromFed('${d}')">${d}</span>`
+        ).join("");
+
+        card.innerHTML = `
+          ${badge}
+          <div class="realm-name">${realm.name}</div>
+          <div class="realm-desc">${realm.desc}</div>
+          <div class="realm-domains">${domainChips}</div>
+        `;
+
+        if (realm.tier === "core") {
+          coreGrid.appendChild(card);
+        } else {
+          sovereignGrid.appendChild(card);
+        }
+      });
+    }
+
+    function setDomainFromFed(domain) {
+      selectedDomain = domain;
+      els.domainInput.value = domain;
+      renderDomains();
+      refreshStatus();
+      document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+      document.querySelectorAll(".panel").forEach(p => p.classList.remove("active"));
+      document.querySelector('[data-tab="ai"]').classList.add("active");
+      document.getElementById("panel-ai").classList.add("active");
+    }
+
     function getSelectedScopes() {
       return Array.from(document.querySelectorAll(".scope-item.selected")).map(el => el.dataset.scope);
     }
@@ -649,7 +1013,7 @@
       row.className = `msg ${role}`;
       const avatar = document.createElement("div");
       avatar.className = `avatar ${role === "user" ? "user" : "rancher"}`;
-      avatar.textContent = role === "user" ? "HE" : "🤠";
+      avatar.textContent = role === "user" ? "YOU" : "🤠";
       const bubble = document.createElement("div");
       bubble.className = "bubble";
       if (isHtml) bubble.innerHTML = text; else bubble.textContent = text;
@@ -668,7 +1032,7 @@
       if (chatHistory.length && !force) return;
       els.chatMessages.innerHTML = "";
       const ctx = getSessionContext();
-      const welcome = `Howdy. I’m Rancher AI.
+      const welcome = `Howdy. I'm Rancher AI — your Cloudflare concierge for the Omniversal Federated Network.
 
 Current session
 • Domain: ${ctx.domain}
@@ -676,7 +1040,9 @@ Current session
 • Mode: ${ctx.mode === "plan" ? "Plan only" : "Execute handoff"}
 • Credentials present: ${ctx.token_present ? "yes" : "not yet"}
 
-Describe the Cloudflare outcome you want and I’ll translate it into exact operations.`;
+I know all 8 federation realms and their domains. Describe the Cloudflare outcome you want — DNS, SSL, WAF, Workers, R2, Pages — and I'll translate it into exact operations.
+
+Tip: Switch to the Federation tab to see the full constellation and click any domain to target it.`;
       appendMessage("assistant", welcome);
       chatHistory = [{ role: "assistant", content: welcome }];
     }
@@ -759,7 +1125,32 @@ Describe the Cloudflare outcome you want and I’ll translate it into exact oper
     }
 
     function downloadEnvTemplate() {
-      const content = `# .env.rancher\n# Never commit this file.\n\nCF_API_TOKEN=your_scoped_token_here\nCF_ACCOUNT_ID=your_account_id_here\nCF_ZONE_ID=your_zone_id_here\n\n# Optional runtime config for local dev\nANTHROPIC_API_KEY=sk-ant-...\nANTHROPIC_MODEL=claude-sonnet-4-20250514\nALLOWED_ORIGIN=http://localhost:8787\n`;
+      const fedDomains = [
+        "omniversalmedia.llc", "omniversalmedia.cc", "omniversalmedia.net",
+        "thesentinelframework.com", "aetherintelligence.net", "everlightos.com",
+        "theceltickey.com", "rebuilding-roots.com", "aetheragency.online",
+        "omniversalmedia.art", "aetheranalysis.com", "omniversalmediasolutions.com"
+      ].join(", ");
+
+      const content = [
+        "# .env.rancher",
+        "# Never commit this file.",
+        "",
+        "CF_API_TOKEN=your_scoped_token_here",
+        "CF_ACCOUNT_ID=your_account_id_here",
+        "CF_ZONE_ID=your_zone_id_here",
+        "",
+        "# Optional runtime config for local dev",
+        "ANTHROPIC_API_KEY=sk-ant-...",
+        "ANTHROPIC_MODEL=claude-sonnet-4-20250514",
+        "ALLOWED_ORIGIN=http://localhost:5000",
+        "",
+        "# Omniversal Federation domains",
+        `# ${fedDomains}`,
+        "",
+        "# Recommended primary console host: rancher.everlightos.com",
+      ].join("\n");
+
       const blob = new Blob([content], { type: "text/plain" });
       const a = document.createElement("a");
       a.href = URL.createObjectURL(blob);
@@ -798,6 +1189,7 @@ Describe the Cloudflare outcome you want and I’ll translate it into exact oper
 
     renderDomains();
     renderScopes();
+    renderFederation();
     setMode("plan");
     els.domainInput.value = selectedDomain;
     refreshStatus();

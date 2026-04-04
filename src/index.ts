@@ -36,13 +36,59 @@ const SCOPE_MAP = [
 ].join("\n");
 
 const OMNIVERSAL_HINTS = [
-  "rancher.everlightos.com — proposed Rancher host",
-  "everlightos.com / everlightos.net — EverLight OS",
-  "thesentinelframework.com — Sentinel Framework",
-  "omniversalmediasolutions.com — Omniversal Media Solutions",
-  "omniversalmedia.net — Omniversal flagship",
-  "aetheranalysis.com — Aether Analysis",
-  "aetherintelligence.net — Aether Intelligence",
+  "--- AETHER CORE (Central Intelligence) ---",
+  "omniversalmedia.llc — Omniversal Media LLC · Aether Core · Infrastructure, AI, compliance, merch ops",
+  "omniversalmedia.cc — Mythic Intelligence Layer · primary narrative & identity hub",
+  "omniversalmedia.info — Knowledge Base & Documentation · canonical reference layer",
+  "omniversalmedia.org — Institutional & Ethical Layer · governance and public trust",
+  "omniversalmedia.net — Omniversal flagship · main public-facing web presence",
+  "omniversalmedia.art — Omniversal Media Productions LLC · music, label ops, artist output",
+  "omniversalmediasolutions.com — Omniversal Media Solutions · client & community engagement",
+  "",
+  "--- SOVEREIGN REALMS ---",
+  "theceltickey.com — The Celtic Key LLC · symbolic systems, mythic encryption, cultural resonance",
+  "thesentinelframework.com — The Sentinel Framework LLC · security, guardianship, structural integrity, oversight",
+  "aetherintelligence.net — Aether Intelligence LLC · advanced research, AI-aligned systems, mythic computation",
+  "aetheranalysis.com — Aether Analysis · analysis layer for the Aether Intelligence network",
+  "aetheragency.online — Aether Agency · operational outreach and services",
+  "everlightos.com — EverLightOS LLC · terminal interfaces, federated storytelling, Aether protocols",
+  "everlightos.net — EverLightOS alternate/legacy domain",
+  "rebuilding-roots.com — Rebuilding Roots LLC · creative ops, community initiatives, narrative development",
+  "",
+  "--- CONSOLE & INFRA ---",
+  "rancher.everlightos.com — proposed Rancher console host · primary deployment target for this Worker",
+  "account-level (all zones) — Workers, R2, Pages, account-wide tasks",
+].join("\n");
+
+const FEDERATION_CONTEXT = [
+  "THE OMNIVERSAL FEDERATED NETWORK — Architecture Overview",
+  "=========================================================",
+  "Omniversal Media LLC is the AETHER CORE: the central intelligence layer that provides",
+  "enterprise-class infrastructure, AI-powered operational systems, merchandising and",
+  "distribution pipelines, compliance scaffolding, and federated intelligence protocols",
+  "to all sovereign member realms.",
+  "",
+  "Each sovereign LLC maintains full autonomy (separate finances, operations, liability)",
+  "while plugging into the Aether Core via a Shared Services Agreement.",
+  "",
+  "SOVEREIGN REALMS AND THEIR PURPOSE:",
+  "• Rebuilding Roots LLC — Creative operations, community initiatives, narrative development",
+  "• Omniversal Media Productions LLC — Music, label operations, merch, distribution, artistic output",
+  "• Aether Intelligence LLC — Advanced research, AI-aligned systems, mythic computation",
+  "• EverLightOS LLC — Terminal interfaces, federated storytelling, Aether protocols",
+  "• The Sentinel Framework LLC — Security, guardianship, structural integrity, oversight",
+  "• The Celtic Key LLC — Symbolic systems, mythic encryption, cultural resonance",
+  "• Aether Agency — Operational outreach and external-facing services",
+  "",
+  "SHARED SERVICES PROVIDED BY AETHER CORE:",
+  "• Infrastructure (hosting, Workers, R2 storage, DNS)",
+  "• AI systems and Aether Intelligence protocols",
+  "• Compliance scaffolding and legal structure",
+  "• Merchandising and distribution pipelines",
+  "• Metadata, SEO, and federated intelligence architecture",
+  "",
+  "INTERCOMPANY FLOW: Contracts define roles, revenue shares are set per project,",
+  "ownership remains clear, liability remains separate per realm.",
 ].join("\n");
 
 export default {
@@ -57,7 +103,7 @@ export default {
     }
 
     if (url.pathname === "/api/health") {
-      return json({ ok: true, service: "cloudflare-rancher" }, request, env);
+      return json({ ok: true, service: "cloudflare-rancher", federation: "omniversal" }, request, env);
     }
 
     if (url.pathname === "/api/chat" && request.method === "POST") {
@@ -66,6 +112,10 @@ export default {
 
     if (url.pathname === "/api/plan" && request.method === "POST") {
       return handlePlan(request, env);
+    }
+
+    if (url.pathname === "/api/federation" && request.method === "GET") {
+      return handleFederation(request, env);
     }
 
     return env.ASSETS.fetch(request);
@@ -82,14 +132,18 @@ async function handleChat(request: Request, env: Env): Promise<Response> {
   const session = normalizeSession(body.session);
 
   const system = [
-    "You are Rancher, an expert Cloudflare operations concierge for Omniversal Media and related EverLight / Sentinel / Aether properties.",
+    "You are Rancher, an expert Cloudflare operations concierge for the Omniversal Federated Network.",
+    "The Omniversal Federated Network is a constellation of sovereign LLCs aligned under a shared",
+    "operational, creative, and mythic architecture — all powered by Omniversal Media LLC as the Aether Core.",
     "You translate plain-language requests into precise Cloudflare operations.",
+    "",
     "Priorities:",
     "1. Keep answers concise and execution-oriented.",
     "2. Identify required Cloudflare scopes and call out missing scope categories.",
     "3. Distinguish safe read-only audit steps from mutating steps.",
     "4. Explicitly warn before destructive actions such as deletes, purges, overwrites, route changes, token changes, or DNS replacement.",
     "5. If the request is ambiguous, ask only the smallest necessary clarifying question.",
+    "6. When working on a realm's domain, acknowledge which sovereign LLC it belongs to and its purpose in the federation.",
     "",
     "Session context:",
     `- Target domain/zone: ${session.domain || "not set"}`,
@@ -101,8 +155,11 @@ async function handleChat(request: Request, env: Env): Promise<Response> {
     "Scope mapping:",
     SCOPE_MAP,
     "",
-    "Omniversal hints:",
+    "Omniversal Federation domain constellation:",
     OMNIVERSAL_HINTS,
+    "",
+    "Federation architecture:",
+    FEDERATION_CONTEXT,
     "",
     "When asked for an audit, cover DNS, SSL/TLS, WAF, cache posture, Workers/Pages inventory, and R2 where relevant.",
     "End with a clear next step.",
@@ -113,7 +170,7 @@ async function handleChat(request: Request, env: Env): Promise<Response> {
     model: env.ANTHROPIC_MODEL || "claude-sonnet-4-20250514",
     system,
     messages: history,
-    maxTokens: 1000,
+    maxTokens: 1200,
   });
 
   return json({ reply }, request, env);
@@ -133,13 +190,13 @@ async function handlePlan(request: Request, env: Env): Promise<Response> {
     .join("\n\n");
 
   const system = [
-    "You are Rancher, a Cloudflare operations planner.",
+    "You are Rancher, a Cloudflare operations planner for the Omniversal Federated Network.",
     "Generate a precise execution-ready plan from the conversation transcript.",
     "Always produce plain text in this exact high-level structure:",
     "",
     "OPERATION PLAN",
     "==============",
-    "Target: <domain>",
+    "Target: <domain> (<realm name if applicable>)",
     "Mode: <plan-only|execute>",
     "Scope categories selected: <list>",
     "Required permissions: <list>",
@@ -160,6 +217,7 @@ async function handlePlan(request: Request, env: Env): Promise<Response> {
     "Use Wrangler or curl examples whenever possible.",
     "Do not pretend destructive actions are safe.",
     "If information is missing, make explicit assumptions and note them.",
+    "Reference the realm's purpose when relevant (e.g., Sentinel Framework = security/oversight).",
   ].join("\n");
 
   const userPrompt = [
@@ -172,6 +230,9 @@ async function handlePlan(request: Request, env: Env): Promise<Response> {
     "",
     "Scope mapping:",
     SCOPE_MAP,
+    "",
+    "Omniversal domain constellation:",
+    OMNIVERSAL_HINTS,
   ].join("\n");
 
   const plan = await callAnthropic({
@@ -179,10 +240,79 @@ async function handlePlan(request: Request, env: Env): Promise<Response> {
     model: env.ANTHROPIC_MODEL || "claude-sonnet-4-20250514",
     system,
     messages: [{ role: "user", content: userPrompt }],
-    maxTokens: 1200,
+    maxTokens: 1400,
   });
 
   return json({ plan }, request, env);
+}
+
+async function handleFederation(_request: Request, env: Env): Promise<Response> {
+  const realms = [
+    {
+      name: "Omniversal Media LLC",
+      role: "Aether Core",
+      domains: ["omniversalmedia.llc", "omniversalmedia.cc", "omniversalmedia.info", "omniversalmedia.org", "omniversalmedia.net", "omniversalmediasolutions.com"],
+      description: "Central intelligence layer. Provides infrastructure, AI systems, compliance scaffolding, merchandising, and federated intelligence protocols to all sovereign realms.",
+      tier: "core",
+    },
+    {
+      name: "Omniversal Media Productions LLC",
+      role: "Sovereign Realm",
+      domains: ["omniversalmedia.art"],
+      description: "Music, label operations, merch, distribution, and artistic output.",
+      tier: "sovereign",
+    },
+    {
+      name: "Rebuilding Roots LLC",
+      role: "Sovereign Realm",
+      domains: ["rebuilding-roots.com"],
+      description: "Creative operations, community initiatives, and narrative development.",
+      tier: "sovereign",
+    },
+    {
+      name: "Aether Intelligence LLC",
+      role: "Sovereign Realm",
+      domains: ["aetherintelligence.net", "aetheranalysis.com"],
+      description: "Advanced research, AI-aligned systems, and mythic computation.",
+      tier: "sovereign",
+    },
+    {
+      name: "EverLightOS LLC",
+      role: "Sovereign Realm",
+      domains: ["everlightos.com", "everlightos.net"],
+      description: "Terminal interfaces, federated storytelling, and Aether protocols.",
+      tier: "sovereign",
+    },
+    {
+      name: "The Sentinel Framework LLC",
+      role: "Sovereign Realm",
+      domains: ["thesentinelframework.com"],
+      description: "Security, guardianship, structural integrity, and oversight across the federation.",
+      tier: "sovereign",
+    },
+    {
+      name: "The Celtic Key LLC",
+      role: "Sovereign Realm",
+      domains: ["theceltickey.com"],
+      description: "Symbolic systems, mythic encryption, and cultural resonance.",
+      tier: "sovereign",
+    },
+    {
+      name: "Aether Agency",
+      role: "Sovereign Realm",
+      domains: ["aetheragency.online"],
+      description: "Operational outreach and external-facing services for the federation.",
+      tier: "sovereign",
+    },
+  ];
+
+  return new Response(JSON.stringify({ realms, console_host: "rancher.everlightos.com" }, null, 2), {
+    status: 200,
+    headers: {
+      "content-type": "application/json; charset=utf-8",
+      "access-control-allow-origin": "*",
+    },
+  });
 }
 
 async function callAnthropic(args: {

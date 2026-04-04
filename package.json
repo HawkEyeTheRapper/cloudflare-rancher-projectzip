@@ -4,12 +4,12 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "wrangler dev",
+    "dev": "wrangler dev --port 5000 --ip 0.0.0.0",
     "deploy": "wrangler deploy",
     "cf-typegen": "wrangler types"
   },
   "devDependencies": {
-    "typescript": "^5.8.3",
-    "wrangler": "^4.10.0"
+    "typescript": "^5.9.3",
+    "wrangler": "^4.80.0"
   }
 }
