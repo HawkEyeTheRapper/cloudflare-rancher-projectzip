@@ -98,8 +98,8 @@ async function handleChat(request, env) {
     return json({ error: "Missing ANTHROPIC_API_KEY Worker secret." }, request, env, 500);
   }
   const body = await safeJson(request);
-  const history = normalizeHistory(body.history);
-  const session = normalizeSession(body.session);
+  const history = normalizeHistory(body);
+  const session = normalizeSession(body);
   const system = [
     "You are Rancher, an expert Cloudflare operations concierge for the Omniversal Federated Network.",
     "The Omniversal Federated Network is a constellation of sovereign LLCs aligned under a shared",
@@ -148,8 +148,8 @@ async function handlePlan(request, env) {
     return json({ error: "Missing ANTHROPIC_API_KEY Worker secret." }, request, env, 500);
   }
   const body = await safeJson(request);
-  const history = normalizeHistory(body.history);
-  const session = normalizeSession(body.session);
+  const history = normalizeHistory(body);
+  const session = normalizeSession(body);
   const transcript = history.map((msg) => `${msg.role.toUpperCase()}: ${msg.content}`).join("\n\n");
   const system = [
     "You are Rancher, a Cloudflare operations planner for the Omniversal Federated Network.",
@@ -205,63 +205,71 @@ async function handlePlan(request, env) {
   return json({ plan }, request, env);
 }
 __name(handlePlan, "handlePlan");
-async function handleFederation(_request, env) {
+async function handleFederation(_request, _env) {
   const realms = [
     {
       name: "Omniversal Media LLC",
       role: "Aether Core",
       domains: ["omniversalmedia.llc", "omniversalmedia.cc", "omniversalmedia.info", "omniversalmedia.org", "omniversalmedia.net", "omniversalmediasolutions.com"],
       description: "Central intelligence layer. Provides infrastructure, AI systems, compliance scaffolding, merchandising, and federated intelligence protocols to all sovereign realms.",
-      tier: "core"
+      tier: "core",
+      status: "Active"
     },
     {
       name: "Omniversal Media Productions LLC",
       role: "Sovereign Realm",
       domains: ["omniversalmedia.art"],
       description: "Music, label operations, merch, distribution, and artistic output.",
-      tier: "sovereign"
+      tier: "sovereign",
+      status: "Active"
     },
     {
       name: "Rebuilding Roots LLC",
       role: "Sovereign Realm",
       domains: ["rebuilding-roots.com"],
       description: "Creative operations, community initiatives, and narrative development.",
-      tier: "sovereign"
+      tier: "sovereign",
+      status: "Active"
     },
     {
       name: "Aether Intelligence LLC",
       role: "Sovereign Realm",
       domains: ["aetherintelligence.net", "aetheranalysis.com"],
       description: "Advanced research, AI-aligned systems, and mythic computation.",
-      tier: "sovereign"
+      tier: "sovereign",
+      status: "Active"
     },
     {
       name: "EverLightOS LLC",
       role: "Sovereign Realm",
       domains: ["everlightos.com", "everlightos.net"],
       description: "Terminal interfaces, federated storytelling, and Aether protocols.",
-      tier: "sovereign"
+      tier: "sovereign",
+      status: "Active"
     },
     {
       name: "The Sentinel Framework LLC",
       role: "Sovereign Realm",
       domains: ["thesentinelframework.com"],
       description: "Security, guardianship, structural integrity, and oversight across the federation.",
-      tier: "sovereign"
+      tier: "sovereign",
+      status: "Active"
     },
     {
       name: "The Celtic Key LLC",
       role: "Sovereign Realm",
       domains: ["theceltickey.com"],
       description: "Symbolic systems, mythic encryption, and cultural resonance.",
-      tier: "sovereign"
+      tier: "sovereign",
+      status: "Onboarding"
     },
     {
       name: "Aether Agency",
       role: "Sovereign Realm",
       domains: ["aetheragency.online"],
       description: "Operational outreach and external-facing services for the federation.",
-      tier: "sovereign"
+      tier: "sovereign",
+      status: "Onboarding"
     }
   ];
   return new Response(JSON.stringify({ realms, console_host: "rancher.everlightos.com" }, null, 2), {
@@ -290,23 +298,37 @@ async function callAnthropic(args) {
   });
   const data = await res.json();
   if (!res.ok) {
-    throw new Error(data?.error?.message || `Anthropic request failed (${res.status})`);
+    throw new Error(data?.error?.message ?? `Anthropic request failed (${res.status})`);
   }
-  const text = Array.isArray(data?.content) ? data.content.filter((part) => part?.type === "text").map((part) => part.text).join("\n") : "";
+  const text = Array.isArray(data?.content) ? data.content.filter(
+    (part) => part?.type === "text" && typeof part.text === "string"
+  ).map((part) => part.text).join("\n") : "";
   return text || "No response received.";
 }
 __name(callAnthropic, "callAnthropic");
-function normalizeHistory(input) {
+function normalizeHistory(body) {
+  if (!body || typeof body !== "object") {
+    return [];
+  }
+  const input = body.history;
   if (!Array.isArray(input)) {
     return [];
   }
-  return input.map((item) => ({
-    role: item?.role === "assistant" ? "assistant" : "user",
-    content: typeof item?.content === "string" ? item.content : ""
-  })).filter((item) => item.content.trim().length > 0);
+  return input.map((item) => {
+    if (!item || typeof item !== "object") return null;
+    const record = item;
+    return {
+      role: record.role === "assistant" ? "assistant" : "user",
+      content: typeof record.content === "string" ? record.content : ""
+    };
+  }).filter((item) => item !== null && item.content.trim().length > 0);
 }
 __name(normalizeHistory, "normalizeHistory");
-function normalizeSession(input) {
+function normalizeSession(body) {
+  if (!body || typeof body !== "object") {
+    return { scopes: [], mode: "plan", token_present: false, accountId_present: false };
+  }
+  const input = body.session;
   const source = input && typeof input === "object" ? input : {};
   return {
     domain: typeof source.domain === "string" ? source.domain : void 0,
@@ -336,8 +358,8 @@ function json(payload, request, env, status = 200) {
 }
 __name(json, "json");
 function corsHeaders(request, env) {
-  const requestOrigin = request.headers.get("origin") || "*";
-  const allowed = env.ALLOWED_ORIGIN || requestOrigin || "*";
+  const requestOrigin = request.headers.get("origin") ?? "*";
+  const allowed = env.ALLOWED_ORIGIN ?? requestOrigin;
   return {
     "access-control-allow-origin": allowed,
     "access-control-allow-methods": "GET,POST,OPTIONS",
@@ -388,7 +410,7 @@ var jsonError = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx)
 }, "jsonError");
 var middleware_miniflare3_json_error_default = jsonError;
 
-// .wrangler/tmp/bundle-TBchag/middleware-insertion-facade.js
+// .wrangler/tmp/bundle-LfkZ6G/middleware-insertion-facade.js
 var __INTERNAL_WRANGLER_MIDDLEWARE__ = [
   middleware_ensure_req_body_drained_default,
   middleware_miniflare3_json_error_default
@@ -420,7 +442,7 @@ function __facade_invoke__(request, env, ctx, dispatch, finalMiddleware) {
 }
 __name(__facade_invoke__, "__facade_invoke__");
 
-// .wrangler/tmp/bundle-TBchag/middleware-loader.entry.ts
+// .wrangler/tmp/bundle-LfkZ6G/middleware-loader.entry.ts
 var __Facade_ScheduledController__ = class ___Facade_ScheduledController__ {
   constructor(scheduledTime, cron, noRetry) {
     this.scheduledTime = scheduledTime;

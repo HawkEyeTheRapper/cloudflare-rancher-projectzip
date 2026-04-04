@@ -534,6 +534,28 @@
       border-color: rgba(251,146,60,0.3);
       color: #fed7aa;
     }
+    .realm-status-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin: 6px 0 8px;
+    }
+    .status-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .status-dot.success { background: #4ade80; box-shadow: 0 0 4px #4ade8066; }
+    .status-dot.info    { background: #60a5fa; box-shadow: 0 0 4px #60a5fa66; }
+    .status-dot.warning { background: #fbbf24; box-shadow: 0 0 4px #fbbf2466; }
+    .realm-status-label {
+      font-size: 10px;
+      font-family: ui-monospace, monospace;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
     .fed-divider {
       display: flex;
       align-items: center;
@@ -796,6 +818,7 @@
         tier: "core",
         domains: ["omniversalmedia.llc", "omniversalmedia.cc", "omniversalmedia.info", "omniversalmedia.org", "omniversalmedia.net", "omniversalmediasolutions.com"],
         desc: "Central intelligence layer. Provides infrastructure, AI systems, compliance scaffolding, merchandising pipelines, and federated intelligence protocols to all sovereign realms.",
+        status: "Active",
       },
       {
         name: "Omniversal Media Productions LLC",
@@ -803,6 +826,7 @@
         tier: "sovereign",
         domains: ["omniversalmedia.art"],
         desc: "Music, label operations, merch, distribution, and artistic output.",
+        status: "Active",
       },
       {
         name: "Rebuilding Roots LLC",
@@ -810,6 +834,7 @@
         tier: "sovereign",
         domains: ["rebuilding-roots.com"],
         desc: "Creative operations, community initiatives, and narrative development.",
+        status: "Active",
       },
       {
         name: "Aether Intelligence LLC",
@@ -817,6 +842,7 @@
         tier: "sovereign",
         domains: ["aetherintelligence.net", "aetheranalysis.com"],
         desc: "Advanced research, AI-aligned systems, and mythic computation.",
+        status: "Active",
       },
       {
         name: "EverLightOS LLC",
@@ -824,6 +850,7 @@
         tier: "sovereign",
         domains: ["everlightos.com", "everlightos.net"],
         desc: "Terminal interfaces, federated storytelling, and Aether protocols.",
+        status: "Active",
       },
       {
         name: "The Sentinel Framework LLC",
@@ -831,6 +858,7 @@
         tier: "sovereign",
         domains: ["thesentinelframework.com"],
         desc: "Security, guardianship, structural integrity, and oversight across the federation.",
+        status: "Active",
       },
       {
         name: "The Celtic Key LLC",
@@ -838,6 +866,7 @@
         tier: "sovereign",
         domains: ["theceltickey.com"],
         desc: "Symbolic systems, mythic encryption, and cultural resonance.",
+        status: "Onboarding",
       },
       {
         name: "Aether Agency",
@@ -845,6 +874,7 @@
         tier: "sovereign",
         domains: ["aetheragency.online"],
         desc: "Operational outreach and external-facing services for the federation.",
+        status: "Onboarding",
       },
     ];
 
@@ -947,10 +977,13 @@
           `<span class="realm-domain-chip" onclick="setDomainFromFed('${d}')">${d}</span>`
         ).join("");
 
+        const statusClass = realm.status === "Active" ? "success" : realm.status === "Onboarding" ? "info" : "warning";
+        const statusDot = `<span class="status-dot ${statusClass}"></span>`;
         card.innerHTML = `
           ${badge}
           <div class="realm-name">${realm.name}</div>
           <div class="realm-desc">${realm.desc}</div>
+          <div class="realm-status-row">${statusDot}<span class="realm-status-label">${realm.status}</span></div>
           <div class="realm-domains">${domainChips}</div>
         `;
 
@@ -1126,10 +1159,12 @@ Tip: Switch to the Federation tab to see the full constellation and click any do
 
     function downloadEnvTemplate() {
       const fedDomains = [
-        "omniversalmedia.llc", "omniversalmedia.cc", "omniversalmedia.net",
-        "thesentinelframework.com", "aetherintelligence.net", "everlightos.com",
-        "theceltickey.com", "rebuilding-roots.com", "aetheragency.online",
-        "omniversalmedia.art", "aetheranalysis.com", "omniversalmediasolutions.com"
+        "omniversalmedia.llc", "omniversalmedia.cc", "omniversalmedia.info",
+        "omniversalmedia.org", "omniversalmedia.net", "omniversalmedia.art",
+        "omniversalmediasolutions.com", "theceltickey.com", "thesentinelframework.com",
+        "aetherintelligence.net", "aetheranalysis.com", "aetheragency.online",
+        "everlightos.com", "everlightos.net", "rebuilding-roots.com",
+        "rancher.everlightos.com"
       ].join(", ");
 
       const content = [
