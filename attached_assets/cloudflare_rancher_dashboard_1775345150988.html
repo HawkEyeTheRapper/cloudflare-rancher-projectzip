@@ -1,0 +1,669 @@
+
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--font-sans); }
+:root {
+  --orange: #EA580C;
+  --orange-light: #FFF7ED;
+  --orange-border: #FED7AA;
+}
+.rancher-app {
+  padding: 1rem 0;
+  min-height: 600px;
+}
+.brand-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 0.5px solid var(--color-border-tertiary);
+}
+.brand-icon {
+  width: 36px; height: 36px;
+  background: var(--orange);
+  border-radius: var(--border-radius-md);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px;
+}
+.brand-title {
+  font-size: 17px; font-weight: 500;
+  color: var(--color-text-primary);
+}
+.brand-sub {
+  font-size: 12px;
+  color: var(--color-text-secondary);
+}
+
+.step-nav {
+  display: flex; gap: 0; margin-bottom: 1.5rem;
+  border: 0.5px solid var(--color-border-tertiary);
+  border-radius: var(--border-radius-md);
+  overflow: hidden;
+}
+.step-btn {
+  flex: 1; padding: 8px 4px;
+  font-size: 11px; font-weight: 500;
+  background: var(--color-background-primary);
+  border: none; border-right: 0.5px solid var(--color-border-tertiary);
+  cursor: pointer; color: var(--color-text-secondary);
+  transition: background 0.15s;
+  text-align: center;
+  line-height: 1.3;
+}
+.step-btn:last-child { border-right: none; }
+.step-btn.active {
+  background: var(--orange);
+  color: #fff;
+}
+.step-btn .step-num {
+  display: block; font-size: 15px; margin-bottom: 2px;
+}
+
+.panel { display: none; }
+.panel.active { display: block; }
+
+.field-group { margin-bottom: 1rem; }
+.field-label {
+  font-size: 12px; font-weight: 500;
+  color: var(--color-text-secondary);
+  margin-bottom: 4px; display: block;
+}
+input[type=text], input[type=password], select, textarea {
+  width: 100%;
+  font-family: var(--font-sans);
+  font-size: 14px;
+}
+textarea { resize: vertical; min-height: 80px; }
+
+.radio-group { display: flex; flex-direction: column; gap: 6px; }
+.radio-opt {
+  display: flex; align-items: flex-start; gap: 8px;
+  padding: 8px 10px;
+  border: 0.5px solid var(--color-border-tertiary);
+  border-radius: var(--border-radius-md);
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+.radio-opt:hover { background: var(--color-background-secondary); }
+.radio-opt.selected {
+  border-color: var(--orange);
+  background: var(--orange-light);
+}
+.radio-opt input { margin-top: 2px; cursor: pointer; }
+.radio-opt-label { font-size: 13px; font-weight: 500; color: var(--color-text-primary); }
+.radio-opt-desc { font-size: 11px; color: var(--color-text-secondary); margin-top: 1px; }
+
+.scope-grid {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 6px; margin-top: 6px;
+}
+.scope-item {
+  display: flex; align-items: center; gap: 6px;
+  padding: 7px 9px;
+  border: 0.5px solid var(--color-border-tertiary);
+  border-radius: var(--border-radius-md);
+  cursor: pointer;
+  font-size: 12px; color: var(--color-text-primary);
+  transition: border-color 0.15s, background 0.15s;
+}
+.scope-item:hover { background: var(--color-background-secondary); }
+.scope-item.selected {
+  border-color: var(--orange);
+  background: var(--orange-light);
+}
+.scope-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  border: 0.5px solid var(--color-border-secondary);
+  flex-shrink: 0;
+}
+.scope-item.selected .scope-dot {
+  background: var(--orange);
+  border-color: var(--orange);
+}
+
+.action-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 8px 16px;
+  font-size: 13px; font-weight: 500;
+  border-radius: var(--border-radius-md);
+  cursor: pointer; transition: opacity 0.15s;
+  border: 0.5px solid;
+}
+.action-btn:hover { opacity: 0.85; }
+.action-btn.primary {
+  background: var(--orange); color: #fff;
+  border-color: var(--orange);
+}
+.action-btn.secondary {
+  background: var(--color-background-primary);
+  color: var(--color-text-primary);
+  border-color: var(--color-border-secondary);
+}
+.btn-row {
+  display: flex; gap: 8px; margin-top: 1rem;
+  flex-wrap: wrap;
+}
+
+.ai-chat-area {
+  border: 0.5px solid var(--color-border-tertiary);
+  border-radius: var(--border-radius-lg);
+  overflow: hidden;
+  min-height: 280px;
+  display: flex; flex-direction: column;
+}
+.chat-messages {
+  flex: 1;
+  padding: 12px;
+  overflow-y: auto;
+  max-height: 320px;
+  display: flex; flex-direction: column; gap: 10px;
+}
+.msg {
+  display: flex; gap: 8px; align-items: flex-start;
+}
+.msg-avatar {
+  width: 26px; height: 26px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 500; flex-shrink: 0;
+}
+.msg.rancher .msg-avatar {
+  background: var(--orange); color: #fff;
+}
+.msg.user .msg-avatar {
+  background: var(--color-background-info);
+  color: var(--color-text-info);
+  font-size: 10px;
+}
+.msg.rancher { flex-direction: row; }
+.msg.user { flex-direction: row-reverse; }
+.msg-bubble {
+  font-size: 13px; line-height: 1.5;
+  padding: 8px 11px;
+  border-radius: var(--border-radius-md);
+  max-width: 85%;
+  color: var(--color-text-primary);
+}
+.msg.rancher .msg-bubble {
+  background: var(--color-background-secondary);
+  border: 0.5px solid var(--color-border-tertiary);
+}
+.msg.user .msg-bubble {
+  background: var(--orange-light);
+  border: 0.5px solid var(--orange-border);
+}
+.chat-input-row {
+  display: flex; gap: 6px; padding: 10px;
+  border-top: 0.5px solid var(--color-border-tertiary);
+  background: var(--color-background-secondary);
+}
+.chat-input-row input {
+  flex: 1; font-size: 13px; padding: 7px 10px;
+  border: 0.5px solid var(--color-border-tertiary);
+  border-radius: var(--border-radius-md);
+  background: var(--color-background-primary);
+  color: var(--color-text-primary);
+}
+.chat-input-row button {
+  padding: 7px 14px;
+  background: var(--orange); color: #fff;
+  border: none; border-radius: var(--border-radius-md);
+  font-size: 13px; font-weight: 500; cursor: pointer;
+}
+.chat-input-row button:disabled { opacity: 0.5; cursor: default; }
+
+.typing-indicator { display: flex; gap: 4px; align-items: center; padding: 4px 0; }
+.typing-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--color-text-secondary);
+  animation: bounce 1.2s infinite;
+}
+.typing-dot:nth-child(2) { animation-delay: 0.2s; }
+.typing-dot:nth-child(3) { animation-delay: 0.4s; }
+@keyframes bounce {
+  0%, 80%, 100% { transform: translateY(0); }
+  40% { transform: translateY(-5px); }
+}
+
+.plan-box {
+  border: 0.5px solid var(--color-border-tertiary);
+  border-radius: var(--border-radius-lg);
+  padding: 1rem;
+  background: var(--color-background-secondary);
+  font-size: 13px; line-height: 1.6;
+  color: var(--color-text-primary);
+  white-space: pre-wrap;
+  font-family: var(--font-mono);
+  min-height: 120px;
+}
+.warning-box {
+  padding: 10px 12px;
+  background: #FEF9C3;
+  border: 0.5px solid #FDE047;
+  border-radius: var(--border-radius-md);
+  font-size: 12px; color: #713F12;
+  margin-bottom: 1rem;
+}
+.info-box {
+  padding: 10px 12px;
+  background: var(--color-background-info);
+  border: 0.5px solid var(--color-border-info);
+  border-radius: var(--border-radius-md);
+  font-size: 12px; color: var(--color-text-info);
+  margin-bottom: 1rem;
+}
+
+.tag {
+  display: inline-flex; align-items: center;
+  padding: 2px 8px; border-radius: 99px;
+  font-size: 11px; font-weight: 500;
+}
+.tag-orange { background: var(--orange-light); color: var(--orange); }
+.tag-info { background: var(--color-background-info); color: var(--color-text-info); }
+
+.section-label {
+  font-size: 11px; font-weight: 500;
+  color: var(--color-text-secondary);
+  text-transform: uppercase; letter-spacing: 0.06em;
+  margin-bottom: 8px;
+}
+
+.domains-list {
+  display: flex; flex-direction: column; gap: 4px;
+}
+.domain-chip {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 7px 10px;
+  border: 0.5px solid var(--color-border-tertiary);
+  border-radius: var(--border-radius-md);
+  font-size: 12px; cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+.domain-chip.selected {
+  border-color: var(--orange);
+  background: var(--orange-light);
+}
+.domain-chip-name { font-weight: 500; color: var(--color-text-primary); }
+.domain-chip-status { font-size: 10px; color: var(--color-text-secondary); }
+</style>
+
+<div class="rancher-app">
+  <div class="brand-bar">
+    <div class="brand-icon">🤠</div>
+    <div>
+      <div class="brand-title">Cloudflare Rancher</div>
+      <div class="brand-sub">Omniversal Media Infrastructure Console</div>
+    </div>
+    <div style="margin-left: auto;">
+      <span class="tag tag-orange" id="mode-badge">Plan mode</span>
+    </div>
+  </div>
+
+  <div class="step-nav">
+    <button class="step-btn active" onclick="goStep(0)" id="sn0"><span class="step-num">⚙</span>Setup</button>
+    <button class="step-btn" onclick="goStep(1)" id="sn1"><span class="step-num">🌐</span>Domain</button>
+    <button class="step-btn" onclick="goStep(2)" id="sn2"><span class="step-num">🔐</span>Scope</button>
+    <button class="step-btn" onclick="goStep(3)" id="sn3"><span class="step-num">🤖</span>Rancher AI</button>
+    <button class="step-btn" onclick="goStep(4)" id="sn4"><span class="step-num">📋</span>Plan</button>
+  </div>
+
+  <!-- STEP 0: Credentials -->
+  <div class="panel active" id="panel0">
+    <div class="section-label">Execution mode</div>
+    <div class="radio-group" style="margin-bottom: 1rem;">
+      <label class="radio-opt selected" onclick="selectMode(this,'plan')">
+        <input type="radio" name="execmode" checked>
+        <div>
+          <div class="radio-opt-label">Plan only</div>
+          <div class="radio-opt-desc">Generate Wrangler / curl commands to review and run yourself</div>
+        </div>
+      </label>
+      <label class="radio-opt" onclick="selectMode(this,'execute')">
+        <input type="radio" name="execmode">
+        <div>
+          <div class="radio-opt-label">Execute via Codex CLI</div>
+          <div class="radio-opt-desc">Apply changes directly — requires full credential handoff</div>
+        </div>
+      </label>
+    </div>
+
+    <div class="section-label">Credentials</div>
+    <div class="info-box">Credentials are only used in your browser session and are never stored or transmitted to any server.</div>
+    <div class="field-group">
+      <label class="field-label">Cloudflare API token (recommended) or Global API key</label>
+      <input type="password" id="cf-token" placeholder="cf_token_...">
+    </div>
+    <div class="field-group">
+      <label class="field-label">Account ID</label>
+      <input type="text" id="cf-account" placeholder="32-char hex">
+    </div>
+    <div class="btn-row">
+      <button class="action-btn primary" onclick="goStep(1)">Continue →</button>
+      <button class="action-btn secondary" onclick="genEnvTemplate()">Generate .env template</button>
+    </div>
+  </div>
+
+  <!-- STEP 1: Domain -->
+  <div class="panel" id="panel1">
+    <div class="section-label">Target domain / zone</div>
+    <div class="field-group">
+      <label class="field-label">Enter domain name</label>
+      <input type="text" id="domain-input" placeholder="omniversalmedia.net" oninput="updateDomainChips()">
+    </div>
+    <div class="section-label" style="margin-top: 1rem;">Quick pick — Omniversal properties</div>
+    <div class="domains-list" id="domain-chips">
+      <div class="domain-chip" onclick="pickDomain(this,'omniversalmedia.net')"><span class="domain-chip-name">omniversalmedia.net</span><span class="domain-chip-status">flagship</span></div>
+      <div class="domain-chip" onclick="pickDomain(this,'omniversal.media')"><span class="domain-chip-name">omniversal.media</span><span class="domain-chip-status">media hub</span></div>
+      <div class="domain-chip" onclick="pickDomain(this,'thesentinelframework.com')"><span class="domain-chip-name">thesentinelframework.com</span><span class="domain-chip-status">accountability</span></div>
+      <div class="domain-chip" onclick="pickDomain(this,'everlightos.net')"><span class="domain-chip-name">everlightos.net</span><span class="domain-chip-status">EverLightOS</span></div>
+      <div class="domain-chip" onclick="pickDomain(this,'account-level (all zones)')"><span class="domain-chip-name">Account-level only</span><span class="domain-chip-status">R2, Workers, no zone needed</span></div>
+    </div>
+    <div class="btn-row">
+      <button class="action-btn secondary" onclick="goStep(0)">← Back</button>
+      <button class="action-btn primary" onclick="goStep(2)">Continue →</button>
+    </div>
+  </div>
+
+  <!-- STEP 2: Scope -->
+  <div class="panel" id="panel2">
+    <div class="section-label">Select permission scopes needed</div>
+    <div class="info-box">Only the scopes you select will be included in the plan. Principle of least privilege.</div>
+    <div class="scope-grid" id="scope-grid">
+      <div class="scope-item selected" onclick="toggleScope(this)" data-scope="DNS edits"><div class="scope-dot"></div>DNS edits</div>
+      <div class="scope-item" onclick="toggleScope(this)" data-scope="SSL/TLS settings"><div class="scope-dot"></div>SSL/TLS settings</div>
+      <div class="scope-item" onclick="toggleScope(this)" data-scope="WAF / firewall rules"><div class="scope-dot"></div>WAF / firewall rules</div>
+      <div class="scope-item" onclick="toggleScope(this)" data-scope="R2 storage"><div class="scope-dot"></div>R2 storage</div>
+      <div class="scope-item" onclick="toggleScope(this)" data-scope="Workers deploy + routes"><div class="scope-dot"></div>Workers deploy + routes</div>
+      <div class="scope-item" onclick="toggleScope(this)" data-scope="Pages / static deploy"><div class="scope-dot"></div>Pages / static deploy</div>
+      <div class="scope-item" onclick="toggleScope(this)" data-scope="Security level + cache"><div class="scope-dot"></div>Security level + cache</div>
+      <div class="scope-item" onclick="toggleScope(this)" data-scope="Token management"><div class="scope-dot"></div>Token management</div>
+    </div>
+    <div class="btn-row">
+      <button class="action-btn secondary" onclick="goStep(1)">← Back</button>
+      <button class="action-btn primary" onclick="goStep(3)">Open Rancher AI →</button>
+    </div>
+  </div>
+
+  <!-- STEP 3: AI Chat -->
+  <div class="panel" id="panel3">
+    <div class="ai-chat-area">
+      <div class="chat-messages" id="chat-messages">
+        <div class="msg rancher">
+          <div class="msg-avatar">🤠</div>
+          <div class="msg-bubble" id="welcome-msg">Loading session context...</div>
+        </div>
+      </div>
+      <div class="chat-input-row">
+        <input type="text" id="chat-input" placeholder="Describe your Cloudflare goal..." onkeydown="if(event.key==='Enter')sendChat()">
+        <button onclick="sendChat()" id="send-btn">Send</button>
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="action-btn secondary" onclick="goStep(2)">← Back</button>
+      <button class="action-btn primary" onclick="buildPlan()">Build plan →</button>
+    </div>
+  </div>
+
+  <!-- STEP 4: Plan -->
+  <div class="panel" id="panel4">
+    <div class="section-label">Generated operation plan</div>
+    <div class="plan-box" id="plan-output">Plan will appear here after the AI session...</div>
+    <div class="warning-box" id="destructive-warning" style="display:none;">
+      ⚠ This plan includes potentially destructive actions (deletes, overwrites, or cache purges). Confirm you have reviewed each step before executing.
+    </div>
+    <div class="btn-row">
+      <button class="action-btn secondary" onclick="goStep(3)">← Back to chat</button>
+      <button class="action-btn primary" onclick="copyPlan()">Copy plan</button>
+      <button class="action-btn secondary" onclick="sendPrompt('I\'m ready to execute this Cloudflare plan. Walk me through running it step by step.')">Run with Claude ↗</button>
+    </div>
+  </div>
+</div>
+
+<script>
+let currentStep = 0;
+let execMode = 'plan';
+let selectedDomain = 'omniversalmedia.net';
+let chatHistory = [];
+let sessionContext = {};
+let planText = '';
+
+function goStep(n) {
+  document.querySelectorAll('.panel').forEach((p,i) => p.classList.toggle('active', i===n));
+  document.querySelectorAll('.step-btn').forEach((b,i) => b.classList.toggle('active', i===n));
+  currentStep = n;
+  if (n === 3) initChat();
+  if (n === 4) generatePlan();
+}
+
+function selectMode(el, mode) {
+  document.querySelectorAll('.radio-opt').forEach(r => r.classList.remove('selected'));
+  el.classList.add('selected');
+  execMode = mode;
+  document.getElementById('mode-badge').textContent = mode === 'plan' ? 'Plan mode' : 'Execute mode';
+}
+
+function toggleScope(el) {
+  el.classList.toggle('selected');
+}
+
+function pickDomain(el, domain) {
+  document.querySelectorAll('.domain-chip').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedDomain = domain;
+  document.getElementById('domain-input').value = domain === 'account-level (all zones)' ? '' : domain;
+}
+
+function updateDomainChips() {
+  const val = document.getElementById('domain-input').value;
+  if (val) selectedDomain = val;
+}
+
+function getSelectedScopes() {
+  return Array.from(document.querySelectorAll('.scope-item.selected')).map(el => el.dataset.scope);
+}
+
+function initChat() {
+  sessionContext = {
+    domain: selectedDomain,
+    scopes: getSelectedScopes(),
+    mode: execMode,
+    token_present: !!document.getElementById('cf-token').value,
+    accountId_present: !!document.getElementById('cf-account').value
+  };
+  const welcome = `Howdy! I'm your Rancher AI — Cloudflare operations concierge for Omniversal Media.
+
+Session context:
+• Domain: ${sessionContext.domain}
+• Scopes: ${sessionContext.scopes.join(', ') || 'none selected'}
+• Mode: ${sessionContext.mode === 'plan' ? 'Plan only (commands + explanation)' : 'Execute via Codex CLI'}
+• Credentials: ${sessionContext.token_present ? 'API token provided ✓' : 'no token yet — plan mode only'}
+
+What would you like to do? Describe your goal in plain language and I'll map it to a precise Cloudflare operation.`;
+  document.getElementById('welcome-msg').textContent = welcome;
+  chatHistory = [{role:'assistant', content: welcome}];
+}
+
+async function sendChat() {
+  const input = document.getElementById('chat-input');
+  const msg = input.value.trim();
+  if (!msg) return;
+  input.value = '';
+
+  appendMsg('user', msg);
+  chatHistory.push({role:'user', content: msg});
+
+  const sendBtn = document.getElementById('send-btn');
+  sendBtn.disabled = true;
+  const typingId = appendTyping();
+
+  const systemPrompt = `You are Rancher, an expert Cloudflare operations concierge for Omniversal Media — a federated network of 70+ interlinked websites. You guide Cloudflare work from planning through execution using the Rancher skill framework.
+
+Current session:
+- Target domain/zone: ${sessionContext.domain}
+- Selected permission scopes: ${(sessionContext.scopes||[]).join(', ')}
+- Execution mode: ${sessionContext.mode === 'plan' ? 'plan-only (generate commands the user will run themselves)' : 'execute via Codex CLI'}
+- API token present: ${sessionContext.token_present}
+
+Your approach:
+1. Translate the user's plain-language goal into precise Cloudflare API or Wrangler CLI operations
+2. Identify which scopes are needed and flag any missing ones
+3. Ask clarifying questions if intent is ambiguous
+4. Warn about destructive actions (deletes, overwrites, purges)
+5. Keep responses concise and actionable — this is a live ops console
+
+Scope → API permission mapping:
+- DNS edits: Zone:DNS:Edit + Zone:Zone:Read
+- SSL/TLS settings: Zone:Zone Settings:Edit + Zone:Zone:Read
+- WAF/firewall: Zone:WAF:Edit + Zone:Firewall Services:Edit + Zone:Zone:Read
+- R2 storage: Account:R2 Storage:Edit + Account:Account Settings:Read
+- Workers deploy: Account:Workers Scripts:Edit + Account:Workers Routes:Edit
+- Pages deploy: Account:Cloudflare Pages:Edit
+- Token management: Account:API Tokens:Edit
+
+If the user asks for a full audit, outline DNS inspection, SSL/TLS mode, security level, WAF rules, Workers inventory, and R2 buckets.
+Always confirm before destructive actions. End responses with a clear "next step" the user should take.`;
+
+  try {
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        system: systemPrompt,
+        messages: chatHistory
+      })
+    });
+    const data = await resp.json();
+    const reply = data.content?.[0]?.text || 'No response received.';
+    removeTyping(typingId);
+    appendMsg('rancher', reply);
+    chatHistory.push({role:'assistant', content: reply});
+  } catch(e) {
+    removeTyping(typingId);
+    appendMsg('rancher', 'Connection error. Check network and try again.');
+  }
+  sendBtn.disabled = false;
+}
+
+function appendMsg(role, text) {
+  const container = document.getElementById('chat-messages');
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  const av = document.createElement('div');
+  av.className = 'msg-avatar';
+  av.textContent = role === 'rancher' ? '🤠' : 'HE';
+  const bub = document.createElement('div');
+  bub.className = 'msg-bubble';
+  bub.style.whiteSpace = 'pre-wrap';
+  bub.textContent = text;
+  div.appendChild(av);
+  div.appendChild(bub);
+  container.appendChild(div);
+  container.scrollTop = container.scrollHeight;
+  return div.id = 'msg-' + Date.now();
+}
+
+function appendTyping() {
+  const container = document.getElementById('chat-messages');
+  const div = document.createElement('div');
+  const id = 'typing-' + Date.now();
+  div.id = id;
+  div.className = 'msg rancher';
+  div.innerHTML = `<div class="msg-avatar">🤠</div><div class="msg-bubble"><div class="typing-indicator"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div></div>`;
+  container.appendChild(div);
+  container.scrollTop = container.scrollHeight;
+  return id;
+}
+
+function removeTyping(id) {
+  const el = document.getElementById(id);
+  if (el) el.remove();
+}
+
+async function generatePlan() {
+  const planEl = document.getElementById('plan-output');
+  planEl.textContent = 'Generating plan from session context...';
+
+  const summary = chatHistory.map(m => `${m.role.toUpperCase()}: ${m.content}`).join('\n\n');
+  const systemPrompt = `You are Rancher, a Cloudflare operations planner. Generate a precise, executable operation plan based on the session conversation below.
+
+Output format — plain text, structured like:
+OPERATION PLAN
+==============
+Target: <domain>
+Mode: <plan-only|execute>
+Scopes required: <list>
+
+STEPS:
+1. <action> — <command or API call>
+2. ...
+
+VERIFICATION:
+- <check>
+
+NOTES:
+- <warnings, especially destructive actions>
+
+Be specific. Include actual curl commands or wrangler CLI invocations where applicable. Mark any destructive action with ⚠.`;
+
+  try {
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        system: systemPrompt,
+        messages: [{
+          role: 'user',
+          content: `Session transcript:\n\n${summary}\n\nDomain: ${selectedDomain}\nScopes: ${getSelectedScopes().join(', ')}\nMode: ${execMode}`
+        }]
+      })
+    });
+    const data = await resp.json();
+    planText = data.content?.[0]?.text || 'Could not generate plan.';
+    planEl.textContent = planText;
+    const hasDestructive = planText.includes('⚠') || planText.toLowerCase().includes('delete') || planText.toLowerCase().includes('purge');
+    document.getElementById('destructive-warning').style.display = hasDestructive ? 'block' : 'none';
+  } catch(e) {
+    planEl.textContent = 'Error generating plan. Check connection.';
+  }
+}
+
+function buildPlan() {
+  if (chatHistory.length < 2) {
+    alert('Have a conversation with the Rancher AI first — describe your goal, then build the plan.');
+    return;
+  }
+  goStep(4);
+}
+
+function copyPlan() {
+  if (navigator.clipboard && planText) {
+    navigator.clipboard.writeText(planText);
+    const btn = event.target;
+    const orig = btn.textContent;
+    btn.textContent = 'Copied ✓';
+    setTimeout(() => btn.textContent = orig, 1500);
+  }
+}
+
+function genEnvTemplate() {
+  const tpl = `# .env.rancher — Cloudflare credentials
+# DO NOT commit this file. Add to .gitignore.
+
+CF_API_TOKEN=your_scoped_token_here
+CF_ACCOUNT_ID=your_32char_account_id
+CF_ZONE_ID=zone_id_for_target_domain
+
+# R2 access keys (only needed for r2_upload.sh, not wrangler)
+CF_R2_ACCESS_KEY_ID=
+CF_R2_SECRET_ACCESS_KEY=`;
+  const blob = new Blob([tpl], {type:'text/plain'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = '.env.rancher';
+  a.click();
+}
+</script>
