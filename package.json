@@ -12,5 +12,8 @@
     "@cloudflare/workers-types": "^4.20260404.1",
     "typescript": "^5.9.3",
     "wrangler": "^4.80.0"
+  },
+  "dependencies": {
+    "@replit/object-storage": "^1.0.0"
   }
 }
